@@ -11,7 +11,16 @@ B64_OUTPUT = main.wasm.b64
 
 # Default target.
 .PHONY: all
-all: build convert update-html
+all: getdeps build convert update-html
+
+.PHONY: getdeps
+getdeps:
+	@if [ ! -s go.sum ]; then \
+		echo "Installing Go dependencies..."; \
+		go mod tidy; \
+	else \
+		echo "Go dependencies already installed; skipping."; \
+	fi
 
 # Build the WebAssembly binary.
 .PHONY: build
@@ -24,7 +33,11 @@ build:
 .PHONY: convert
 convert: build
 	@echo "Converting WASM to base64..."
-	base64 -w 0 $(WASM_OUTPUT) > $(B64_OUTPUT)
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		base64 -i $(WASM_OUTPUT) -o $(B64_OUTPUT); \
+	else \
+		base64 -w 0 $(WASM_OUTPUT) > $(B64_OUTPUT); \
+	fi
 	@echo "Base64 conversion complete: $(B64_OUTPUT)"
 
 # Update index.html with new WASM base64 data.

@@ -20,9 +20,9 @@ However, this provides a good starting point to analyze a pe file.
 package main
 
 import (
-	"browmal/elfs"
-	"browmal/officedoc"
-	"browmal/pes"
+	"browmal/src/elfs"
+	"browmal/src/officedoc"
+	"browmal/src/pes"
 	"bytes"
 	"fmt"
 	"strings"
@@ -76,7 +76,7 @@ func hasPESignature(fileBytes []byte) bool {
 	}
 
 	// Read the offset to the PE header
-	peOffset := uint32(fileBytes[0x3C]) | (uint32(fileBytes[0x3D]) << 8) | 
+	peOffset := uint32(fileBytes[0x3C]) | (uint32(fileBytes[0x3D]) << 8) |
 		(uint32(fileBytes[0x3E]) << 16) | (uint32(fileBytes[0x3F]) << 24)
 
 	// Check if the offset is within the file bounds
@@ -86,7 +86,7 @@ func hasPESignature(fileBytes []byte) bool {
 
 	// Check for "PE\x00\x00" signature at the PE header
 	peSignature := fileBytes[peOffset : peOffset+4]
-	return peSignature[0] == 'P' && peSignature[1] == 'E' && 
+	return peSignature[0] == 'P' && peSignature[1] == 'E' &&
 		peSignature[2] == 0x00 && peSignature[3] == 0x00
 }
 
@@ -114,14 +114,14 @@ func isPackedPE(fileBytes []byte) bool {
 		name := strings.Trim(string(section.Name[:]), "\x00")
 		// Check for common packer section names
 		if strings.Contains(strings.ToUpper(name), "UPX") ||
-		   strings.Contains(strings.ToUpper(name), "ASPACK") ||
-		   strings.Contains(strings.ToUpper(name), "PEPACK") ||
-		   strings.Contains(strings.ToUpper(name), "MPRMMGVA") ||
-		   strings.Contains(strings.ToUpper(name), "PETITE") ||
-		   strings.Contains(strings.ToUpper(name), "FSG") ||
-		   strings.Contains(strings.ToUpper(name), "MEW") ||
-		   strings.Contains(strings.ToUpper(name), "SPRP") ||
-		   strings.Contains(strings.ToUpper(name), "WWP32") {
+			strings.Contains(strings.ToUpper(name), "ASPACK") ||
+			strings.Contains(strings.ToUpper(name), "PEPACK") ||
+			strings.Contains(strings.ToUpper(name), "MPRMMGVA") ||
+			strings.Contains(strings.ToUpper(name), "PETITE") ||
+			strings.Contains(strings.ToUpper(name), "FSG") ||
+			strings.Contains(strings.ToUpper(name), "MEW") ||
+			strings.Contains(strings.ToUpper(name), "SPRP") ||
+			strings.Contains(strings.ToUpper(name), "WWP32") {
 			return true
 		}
 	}
@@ -170,13 +170,13 @@ func checkOfficeDocumentType(fileBytes []byte) bool {
 	fmt.Printf("[DEBUG] Detected MIME type: %s\n", mtype.String())
 
 	// Check for specific Office document types.
-	if mtype.Is("application/vnd.openxmlformats-officedocument.wordprocessingml.document") || 
-	   mtype.Is("application/msword") || 
-	   mtype.Is("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") || 
-	   mtype.Is("application/vnd.ms-excel") || 
-	   mtype.Is("application/vnd.openxmlformats-officedocument.presentationml.presentation") || 
-	   mtype.Is("application/vnd.ms-powerpoint") ||
-	   mtype.Is("application/zip") {
+	if mtype.Is("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
+		mtype.Is("application/msword") ||
+		mtype.Is("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
+		mtype.Is("application/vnd.ms-excel") ||
+		mtype.Is("application/vnd.openxmlformats-officedocument.presentationml.presentation") ||
+		mtype.Is("application/vnd.ms-powerpoint") ||
+		mtype.Is("application/zip") {
 
 		return true
 
@@ -212,7 +212,7 @@ func analyzeWrapper(this js.Value, args []js.Value) any {
 	} else if isPe {
 
 		result += fmt.Sprintf("[+] PE file detected.\n\n")
-		
+
 		// Check if the PE file is packed.
 		if isPackedPE(fileBytes) || pe_file == nil {
 			result += fmt.Sprintf("[!] Packed or obfuscated PE file detected.\n")
